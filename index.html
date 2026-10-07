@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Speedy List AI - List it fast. Sell it faster.</title>
+<meta name="description" content="Speedy List AI: one photo of your restaurant or commercial equipment becomes a priced listing on every marketplace. Prototype with demo AI and demo posting.">
+<meta name="theme-color" content="#0b0c0e" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0b0c0e">
+<meta name="color-scheme" content="dark light">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/brand/roadrunner-favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="assets/brand/roadrunner-icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="assets/brand/roadrunner-apple-touch-180.png" sizes="180x180">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Speedy List">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="Speedy List AI - List it fast. Sell it faster.">
+<meta property="og:description" content="One photo. Every marketplace. Priced right.">
+<meta property="og:image" content="assets/brand/roadrunner-icon-512.png">
+<link rel="preload" href="assets/fonts/Barlow-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/OpenSans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+<script>try{var t=localStorage.getItem('sla.theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#list">Skip to listing</a>
+<div class="protobar" role="note"><span class="pill">PROTOTYPE</span> Demo AI and demo posting. Nothing is actually posted.</div>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#top" aria-label="Speedy List AI home">
+      <img src="assets/brand/roadrunner-tile-64.png" width="34" height="34" alt="">
+      <span class="wordmark sm"><span class="sp-speedy">Speedy</span><span class="sp-list">List</span><span class="sp-ai">AI</span></span>
+    </a>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#list">List</a><a href="#connect">Connect</a><a href="#marketplaces">Where we list</a><a href="#folder">Folder</a><a href="#pricing">Pricing</a>
+    </nav>
+    <button class="btn ghost sm" id="installBtn" hidden>Install app</button>
+    <button class="iconbtn" id="themeBtn" aria-label="Toggle light / dark mode" title="Light / dark">
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1.5 12h3M19.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="wrap hero-in">
+      <div class="hero-copy">
+        <span class="eyebrow">For restaurant &amp; commercial equipment</span>
+        <h1 class="wordmark xl"><span class="sp-speedy">Speedy</span><span class="sp-list">List</span><span class="sp-ai">AI</span></h1>
+        <p class="slogan">List it fast. <span>Sell it faster.</span></p>
+        <p class="lede">Snap one photo of a reach-in, range or mixer. Speedy List AI identifies it, prices it with a proven formula, writes the listing, and sends it to every marketplace you sell on.</p>
+        <div class="cta-row">
+          <a class="btn primary lg" href="#list">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            List my first item</a>
+          <a class="btn ghost lg" href="#folder">Get the folder</a>
+        </div>
+        <ul class="hero-stats">
+          <li><b>1</b> photo</li><li><b>17</b> marketplaces</li><li><b>~60s</b> to list</li>
+        </ul>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="tile-ring"><img src="assets/brand/roadrunner-tile.png" width="300" height="300" alt=""></div>
+        <div class="float f1"><span class="dot ok"></span>Posted to eBay</div>
+        <div class="float f2"><span class="dot ok"></span>Facebook ready</div>
+        <div class="float f3"><b>$3,325</b><small>True T-49 · Good</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIST FLOW -->
+  <section class="sec" id="list">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Start a listing</span>
+        <h2>One photo in. A priced listing out.</h2>
+      </div>
+
+      <div class="flow card" id="flow">
+        <!-- step 0: drop -->
+        <div class="step" id="stepDrop">
+          <label class="drop" id="drop" tabindex="0">
+            <input type="file" id="fileIn" accept="image/*" multiple hidden>
+            <div class="drop-icon" aria-hidden="true">
+              <svg viewBox="0 0 64 64"><rect x="6" y="14" width="52" height="40" rx="9"/><circle cx="32" cy="34" r="11"/><path d="M22 14l4-6h12l4 6"/></svg>
+            </div>
+            <strong class="drop-title">Drop a photo of your equipment</strong>
+            <span class="drop-sub"><span class="desk">or click to choose photos</span><span class="mob">Tap to take a photo or choose from your library</span> · multiple photos OK</span>
+            <span class="drop-hint">Tip: shoot the whole unit, then the data plate.</span>
+          </label>
+          <div class="sample-row"><button class="linkbtn" id="sampleBtn" type="button">No photo handy? Try a sample reach-in</button></div>
+        </div>
+
+        <!-- step 1: thumbs + identifying -->
+        <div class="step" id="stepId" hidden>
+          <div class="thumbs" id="thumbs"></div>
+          <div class="ident" id="ident">
+            <div class="scan"><img id="scanImg" alt=""><span class="scanline"></span></div>
+            <div class="ident-copy">
+              <h3><span class="spinner"></span> Identifying...</h3>
+              <ul class="ident-steps" id="identSteps">
+                <li>Reading the photo</li><li>Spotting brand &amp; model</li><li>Checking the data plate</li><li>Pulling new retail price</li>
+              </ul>
+              <p class="demo-note">Demo AI - simulated for the prototype.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- step 2: result -->
+        <div class="step" id="stepResult" hidden>
+          <div class="result-grid">
+            <div class="col">
+              <div class="item-card">
+                <div class="item-photo"><img id="itemImg" alt="Your equipment photo"><span class="badge demo">DEMO AI</span></div>
+                <div class="item-meta">
+                  <span class="badge ok" id="itemConf">92% match</span>
+                  <h3 id="itemName">True T-49 Two-Section Reach-In Refrigerator</h3>
+                  <dl class="kv"><dt>Brand</dt><dd id="itemBrand">True</dd><dt>Model</dt><dd id="itemModel">T-49</dd><dt>Category</dt><dd id="itemCat">Refrigeration</dd></dl>
+                  <p class="demo-note strong">Demo AI: this prototype does not analyze your photo yet. It picks a plausible sample item so you can see the flow. Edit anything below.</p>
+                  <button class="linkbtn" id="retryBtn" type="button">Not it? Try another guess</button>
+                </div>
+              </div>
+
+              <div class="price-card">
+                <div class="price-head">
+                  <h3>Speedy price</h3>
+                  <span class="formula-tag">V = (R &times; C) + B</span>
+                </div>
+                <div class="field">
+                  <label for="retailIn">R - new retail price</label>
+                  <div class="money"><span>$</span><input id="retailIn" type="number" inputmode="numeric" min="0" step="50"></div>
+                </div>
+                <div class="field">
+                  <span class="lbl">C - condition</span>
+                  <div class="seg" id="condSeg" role="radiogroup" aria-label="Condition"></div>
+                </div>
+                <div class="field" id="bonusField">
+                  <label for="bonusIn">B - brand bonus <span class="gold" id="goldTag">Gold-standard brand</span></label>
+                  <div class="range-row"><input id="bonusIn" type="range" min="50" max="200" step="25"><output id="bonusOut">$150</output></div>
+                  <p class="tiny" id="bonusNote">True, Hobart, Vulcan and Imperial Brown earn a $50-$200 bonus.</p>
+                </div>
+                <div class="calc" id="calc"></div>
+                <div class="final">
+                  <div><span class="tiny">Suggested list price</span><div class="big" id="vOut">$0</div></div>
+                  <div class="field inline"><label for="priceIn">Your price</label><div class="money"><span>$</span><input id="priceIn" type="number" inputmode="numeric" min="0" step="5"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="listing-card">
+                <h3>Your listing <span class="tiny">written for you - edit freely</span></h3>
+                <div class="field"><label for="titleIn">Title <span class="tiny" id="titleCount">0/80</span></label><input id="titleIn" maxlength="80"></div>
+                <div class="field"><label for="descIn">Description</label><textarea id="descIn" rows="9"></textarea></div>
+              </div>
+
+              <div class="post-card" id="postCard">
+                <div class="post-head">
+                  <h3>Post to</h3>
+                  <a class="linkbtn" href="#connect" id="manageConn">Manage connections</a>
+                </div>
+                <div class="conn-chips" id="connChips"></div>
+                <div class="conn-nudge" id="connNudge" hidden>
+                  <span>Connect once and Speedy List checks your marketplaces automatically.</span>
+                  <button class="btn primary sm" type="button" data-act="connect-all">Connect all (30 sec)</button>
+                </div>
+                <div class="mk-checks" id="mkChecks"></div>
+                <button class="btn primary lg block" id="postBtn" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+                  Post everywhere</button>
+                <p class="demo-note center">Demo posting - nothing leaves your device.</p>
+                <ol class="progress" id="postProgress" hidden></ol>
+                <div class="done-row" id="doneRow" hidden>
+                  <button class="btn ghost" id="againBtn" type="button">List another item</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONNECT -->
+  <section class="sec alt" id="connect">
+    <div class="wrap">
+      <div class="sec-head row">
+        <div>
+          <span class="kicker">Connect your marketplaces</span>
+          <h2>Connect once. Post everywhere.</h2>
+          <p class="sub">One tap per marketplace. <b>Direct</b> ones sign in with the marketplace's own login. <b>Assisted</b> ones need no login here: we open the site with your listing pre-filled and you just tap Publish.</p>
+        </div>
+        <div class="connect-actions">
+          <button class="btn primary lg" type="button" data-act="connect-all">Connect all</button>
+          <span class="tiny" id="connSummary">0 of 17 connected</span>
+        </div>
+      </div>
+      <div class="conn-grid" id="connGrid"></div>
+      <p class="demo-note center">Demo: sign-ins are simulated and saved only in this browser. No passwords, no tokens, nothing sent anywhere.</p>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section class="sec" id="how">
+    <div class="wrap">
+      <div class="sec-head"><span class="kicker">How it works</span><h2>Four steps. About a minute.</h2></div>
+      <ol class="how">
+        <li><span class="n">1</span><div class="how-ic"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><h3>Snap</h3><p>One photo of the unit. Add the data plate for a sharper match.</p></li>
+        <li><span class="n">2</span><div class="how-ic"><svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.6"/></svg></div><h3>AI prices it</h3><p>V = (R &times; C) + B: retail &times; condition, plus a bonus for gold-standard brands.</p></li>
+        <li><span class="n">3</span><div class="how-ic"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><h3>Listing written</h3><p>Title, specs and description that buyers actually search for.</p></li>
+        <li><span class="n">4</span><div class="how-ic"><svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></div><h3>Posted everywhere</h3><p>Direct marketplaces post for you. Assisted ones open pre-filled - you tap Publish.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- MARKETPLACES -->
+  <section class="sec alt" id="marketplaces">
+    <div class="wrap">
+      <div class="sec-head row">
+        <div>
+          <span class="kicker">Where we list</span>
+          <h2>Every place used equipment sells.</h2>
+          <p class="sub">Honest badges: <span class="mbadge direct">Direct</span> = official seller API, we post for you. <span class="mbadge assisted">Assisted</span> = no open posting API for apps like ours, so we prepare everything and you tap Publish. <span class="mbadge planned">Planned</span> = not verified yet.</p>
+        </div>
+        <div class="filter" role="tablist" aria-label="Filter marketplaces">
+          <button class="chip on" data-filter="all" type="button">All</button>
+          <button class="chip" data-filter="direct" type="button">Direct</button>
+          <button class="chip" data-filter="assisted" type="button">Assisted</button>
+          <button class="chip" data-filter="planned" type="button">Planned</button>
+        </div>
+      </div>
+      <div class="mk-grid collapsed" id="mkGrid"></div>
+      <div class="mk-more" id="mkMore"><button class="btn ghost" type="button" id="mkMoreBtn">Show all marketplaces</button></div>
+      <p class="tiny center">Researched October 2026. Marketplace names are trademarks of their owners; Speedy List AI is not affiliated with or endorsed by them. Sources in each card.</p>
+    </div>
+  </section>
+
+  <!-- FOLDER -->
+  <section class="sec" id="folder">
+    <div class="wrap folder-in">
+      <div class="folder-art">
+        <div class="folder-glow" aria-hidden="true"></div>
+        <img src="img/speedy-list-folder-512.png" width="512" height="512" alt="Speedy List folder icon: an orange folder with the roadrunner logo on the front">
+      </div>
+      <div class="folder-copy">
+        <span class="kicker">Download your Speedy List folder</span>
+        <h2>A home base for every photo.</h2>
+        <p class="sub">A ready-made folder for your desktop with the roadrunner icon. Drop equipment photos into <b>Drop Photos Here</b>, then upload them in the app. Move them to <b>Listed</b> and <b>Sold</b> as you go.</p>
+        <ul class="tree" aria-label="Folder contents">
+          <li class="d">Speedy List</li>
+          <li class="d sub1">Drop Photos Here</li>
+          <li class="d sub1">Listed</li>
+          <li class="d sub1">Sold</li>
+          <li class="f sub1">README.txt</li>
+          <li class="f sub1">folder.ico <span class="tiny">Windows</span></li>
+          <li class="f sub1">desktop.ini <span class="tiny">Windows</span></li>
+          <li class="f sub1">folder-icon-1024.png <span class="tiny">Mac</span></li>
+        </ul>
+        <a class="btn primary lg" href="downloads/Speedy-List-Folder.zip" download="Speedy-List-Folder.zip" id="zipBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+          Download Speedy-List-Folder.zip</a>
+        <p class="tiny">Windows &amp; Mac. Icon setup takes 30 seconds - steps are in the folder.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="sec alt" id="pricing">
+    <div class="wrap">
+      <div class="sec-head center"><span class="kicker">Pricing</span><h2>Your first 5 listings are free.</h2><p class="sub">Planned pricing for launch. No card needed to try.</p></div>
+      <div class="plans">
+        <div class="plan"><h3>Starter</h3><div class="amt">$5<small>/listing</small></div><ul><li>Pay as you go</li><li>All marketplaces</li><li>AI pricing &amp; listing copy</li></ul></div>
+        <div class="plan hot"><span class="ribbon">Most popular</span><h3>Pro</h3><div class="amt">$49<small>/mo</small></div><ul><li>60 listings a month</li><li>All marketplaces</li><li>Price history &amp; comps</li></ul></div>
+        <div class="plan"><h3>Liquidator</h3><div class="amt">$199<small>/mo</small></div><ul><li>400 listings a month</li><li>3 team seats</li><li>Whole-kitchen batch mode</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORES -->
+  <section class="sec" id="apps">
+    <div class="wrap stores">
+      <img src="assets/brand/roadrunner-tile-64.png" width="56" height="56" alt="" class="stores-ic">
+      <h2>Coming soon to Google Play and the App Store</h2>
+      <p class="sub">Install it right now from your browser - it works offline, like an app.</p>
+      <div class="store-badges">
+        <span class="sbadge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span><small>Coming soon to</small>Google Play</span></span>
+        <span class="sbadge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span><small>Coming soon to the</small>App Store</span></span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-in">
+    <div class="foot-brand">
+      <img src="assets/brand/roadrunner-tile-64.png" width="40" height="40" alt="">
+      <div><span class="wordmark sm"><span class="sp-speedy">Speedy</span><span class="sp-list">List</span><span class="sp-ai">AI</span></span><p class="tiny">List it fast. Sell it faster.</p></div>
+    </div>
+    <div class="foot-links">
+      <a href="mailto:justaskmiggy@gmail.com">justaskmiggy@gmail.com</a>
+      <span>speedylistai.com <em>(coming soon)</em></span>
+      <a href="privacy.html">Privacy (draft)</a>
+    </div>
+    <p class="foot-note"><b>Prototype - demo AI and demo posting.</b> &nbsp;·&nbsp; Waynesboro, VA &nbsp;·&nbsp; &copy; 2026 Speedy List AI</p>
+  </div>
+</footer>
+
+<div class="modal" id="modal" hidden><div class="modal-back" data-act="close"></div><div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle" id="modalBox"></div></div>
+<div class="sheet" id="sheet" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

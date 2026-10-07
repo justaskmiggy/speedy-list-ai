@@ -1,0 +1,29 @@
+{
+  "id": "./",
+  "name": "Speedy List AI",
+  "short_name": "Speedy List",
+  "description": "One photo of your restaurant or commercial equipment becomes a priced listing on every marketplace. List it fast. Sell it faster. (Prototype: demo AI and demo posting.)",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0b0c0e",
+  "theme_color": "#0b0c0e",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["business", "shopping", "productivity"],
+  "icons": [
+    {"src": "assets/brand/roadrunner-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "assets/brand/roadrunner-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "assets/brand/roadrunner-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "New listing", "short_name": "List", "url": "./index.html#list", "icons": [{"src": "assets/brand/roadrunner-icon-192.png", "sizes": "192x192"}]},
+    {"name": "Connect marketplaces", "short_name": "Connect", "url": "./index.html#connect", "icons": [{"src": "assets/brand/roadrunner-icon-192.png", "sizes": "192x192"}]}
+  ],
+  "screenshots": [
+    {"src": "img/store/screen-mobile.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Drop a photo, get a priced listing"},
+    {"src": "img/store/screen-desktop.png", "sizes": "1280x800", "type": "image/png", "form_factor": "wide", "label": "Speedy List AI on desktop"}
+  ]
+}
