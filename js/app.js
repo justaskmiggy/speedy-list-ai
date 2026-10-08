@@ -141,18 +141,29 @@ $('#mkMoreBtn').textContent = `Show all ${SL.MARKETS.length} marketplaces`;
 $('#mkMoreBtn').addEventListener('click', () => { $('#mkGrid').classList.remove('collapsed'); $('#mkMore').remove(); });
 
 /* ---------- Listing flow ---------- */
-const st = { files: [], urls: [], item: null, run: 0, cond: 'good', retail: 0, bonus: 0, price: 0, priceDirty: false, titleDirty: false, descDirty: false, checked: null };
+/* Photo rule (same as the Local Liquidators app): 4 required angles + data plate + brand logo, max 7 per item.
+   Plate and logo are required too unless the seller ticks "No plate" / "No logo". */
+const SHOTS = [
+  { k: 'front', n: 'Front', h: 'Straight on, whole unit in frame', req: true, role: 'front' },
+  { k: 'side', n: 'Side / angle', h: 'Step left or right, full side', req: true, role: 'side' },
+  { k: 'back', n: 'Back / hookups', h: 'Back panel, cords, gas or water', req: true, role: 'back' },
+  { k: 'inside', n: 'Inside / top', h: 'Open it up or show it working', req: true, role: 'interior' },
+  { k: 'plate', n: 'Data plate', h: 'Model, serial, volts. Fill the frame', key: 'No plate on it', role: 'plate' },
+  { k: 'brand', n: 'Brand logo', h: 'Close-up of the brand name', key: 'No logo', role: 'brand logo close-up' },
+  { k: 'extra', n: 'Extra', h: 'Optional: detail, wear or accessories', role: 'closeup' }];
+const MIN_REQ = 4, MAX_SHOTS = SHOTS.length; // 7
+const st = { shots: {}, shotUrls: {}, skip: {}, sample: false, files: [], urls: [], item: null, run: 0, cond: 'good', retail: 0, bonus: 0, price: 0, priceDirty: false, titleDirty: false, descDirty: false, checked: null };
 const fileIn = $('#fileIn'), drop = $('#drop');
 ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
 ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
-drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
 drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileIn.click(); } });
-fileIn.addEventListener('change', () => { handleFiles(fileIn.files); fileIn.value = ''; });
+fileIn.addEventListener('change', () => { addFiles(fileIn.files); fileIn.value = ''; });
 // whole-page drop goes to the box too
 window.addEventListener('dragover', e => e.preventDefault());
-window.addEventListener('drop', e => { e.preventDefault(); if (!drop.contains(e.target) && e.dataTransfer.files.length) { $('#list').scrollIntoView(); handleFiles(e.dataTransfer.files); } });
+window.addEventListener('drop', e => { e.preventDefault(); if (!drop.contains(e.target) && e.dataTransfer.files.length) { showStep('stepDrop'); $('#list').scrollIntoView(); addFiles(e.dataTransfer.files); } });
 $('#sampleBtn').addEventListener('click', async () => {
-  try { const r = await fetch('img/sample-reach-in.jpg'); const b = await r.blob(); handleFiles([new File([b], 'sample-true-reach-in.jpg', { type: 'image/jpeg' })]); }
+  try { const r = await fetch('img/sample-reach-in.jpg'); const b = await r.blob(); runSample(new File([b], 'sample-true-reach-in.jpg', { type: 'image/jpeg' })); }
   catch (e) { toast('Example photo unavailable offline'); }
 });
 
@@ -172,16 +183,17 @@ function toDataUrl(file, max = 1280) {
     img.src = url;
   });
 }
-async function analyzeFiles(files) {
-  const imgs = [];
-  for (const f of files.slice(0, 4)) { try { imgs.push(await toDataUrl(f)); } catch (e) {} }
+// AI gets up to 6 photos (server limit): data plate first so it can read model/serial, then brand logo, then the angles.
+const AI_ORDER = ['plate', 'brand', 'front', 'side', 'back', 'inside', 'extra'];
+async function analyzeFiles(list) {
+  const imgs = [], roles = [];
+  for (const x of list.slice(0, 6)) { try { imgs.push(await toDataUrl(x.file)); roles.push(x.role); } catch (e) {} }
   if (!imgs.length) throw Object.assign(new Error('photo'), { why: "I couldn't read that photo. Try a JPG or PNG." });
-  const roles = ['front', 'plate', 'closeup', 'overview'];
   const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), 75000);
   let r;
   try {
     r = await fetch(AI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
-      body: JSON.stringify({ images: imgs.map((d, i) => ({ role: roles[i] || 'closeup', dataUrl: d })), hints: { type: 'item' } }) });
+      body: JSON.stringify({ images: imgs.map((d, i) => ({ role: roles[i] || 'closeup', dataUrl: d })), hints: { type: 'item', notes: [st.skip.plate && 'Seller says there is no data plate.', st.skip.brand && 'Seller says there is no brand logo.'].filter(Boolean).join(' ') || undefined } }) });
   } catch (e) { throw Object.assign(e, { why: navigator.onLine === false ? "You're offline. Check your signal and tap Analyze again." : "I couldn't reach Speedy AI just now. Tap Analyze again in a minute." }); }
   finally { clearTimeout(to); }
   let j = null; try { j = await r.json(); } catch (e) {}
@@ -209,11 +221,59 @@ function fromAI(j) {
 }
 function showStep(id) { ['stepDrop', 'stepId', 'stepResult'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 
-async function handleFiles(list) {
-  const files = Array.from(list || []).filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif|gif)$/i.test(f.name));
+const isImg = f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif|gif)$/i.test(f.name);
+const filled = () => SHOTS.filter(x => st.shots[x.k]);
+const reqDone = () => SHOTS.filter(x => x.req && st.shots[x.k]).length;
+const keyOk = k => !!(st.shots[k] || st.skip[k]);
+function setShot(k, f) { if (st.shotUrls[k]) URL.revokeObjectURL(st.shotUrls[k]); if (f) { st.shots[k] = f; st.shotUrls[k] = URL.createObjectURL(f); delete st.skip[k]; } else { delete st.shots[k]; delete st.shotUrls[k]; } }
+// Several photos at once (drop / library): fill the empty slots in order, never more than 7.
+function addFiles(list) {
+  const files = Array.from(list || []).filter(isImg);
   if (!files.length) { toast('Drop an image file (JPG, PNG, HEIC...)'); return; }
-  st.urls.forEach(u => URL.revokeObjectURL(u));
-  st.files = files.slice(0, 12); st.urls = st.files.map(f => URL.createObjectURL(f));
+  showStep('stepDrop'); st.sample = false;
+  const open = SHOTS.filter(x => !st.shots[x.k]);
+  if (!open.length) { toast(`That's ${MAX_SHOTS} photos, the max per item. Remove one to swap it.`); return; }
+  files.slice(0, open.length).forEach((f, i) => setShot(open[i].k, f));
+  if (files.length > open.length) toast(`Max ${MAX_SHOTS} photos per item. ${files.length - open.length} extra photo${files.length - open.length === 1 ? ' was' : 's were'} left out.`);
+  renderShots();
+}
+function renderShots() {
+  const n = filled().length, r = reqDone();
+  $('#shots').innerHTML = SHOTS.map((x, i) => { const u = st.shotUrls[x.k], sk = !!st.skip[x.k];
+    const tag = x.req ? 'Required' : x.key ? (u ? 'Added' : sk ? 'Skipped' : 'Needed') : 'Optional';
+    return `<div class="shot ${x.req ? 'req' : ''} ${x.key ? 'key' : ''} ${u ? 'done' : ''} ${sk ? 'skipped' : ''}" role="listitem">
+      <div class="box"><label class="pick" title="${esc(x.h)}"><span class="num">${i + 1}</span>${u ? `<img src="${u}" alt="${esc(x.n)} photo"><span class="tick">${ICON_CHECK}</span>` : '<svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'}
+        <input type="file" accept="image/*" data-slot="${x.k}" aria-label="${u ? 'Replace' : 'Add'} ${esc(x.n)} photo"></label>
+      ${u ? `<button type="button" class="rm" data-rm="${x.k}" aria-label="Remove ${esc(x.n)} photo">${ICON_X}</button>` : ''}</div>
+      <span class="nm">${esc(x.n)}</span><span class="tag">${tag}</span>
+      ${x.key && !u ? `<label class="skipchk"><input type="checkbox" data-skip="${x.k}" ${sk ? 'checked' : ''}>${esc(x.key)}</label>` : ''}</div>`; }).join('');
+  const c = $('#shotCount'); c.innerHTML = `${r}/${MIN_REQ} required &middot; ${n} of ${MAX_SHOTS} max`; c.classList.toggle('ok', r >= MIN_REQ && keyOk('plate') && keyOk('brand'));
+  const flag = (k, lbl) => `<span class="sflag ${st.shots[k] ? 'ok' : st.skip[k] ? '' : 'need'}">${st.shots[k] ? '&#10003; ' : st.skip[k] ? 'No ' : ''}${lbl}</span>`;
+  $('#shotFlags').innerHTML = flag('plate', 'Data plate') + flag('brand', 'Brand logo');
+  const b = $('#analyzeBtn'), why = $('#analyzeWhy');
+  const miss = SHOTS.filter(x => x.req && !st.shots[x.k]).map(x => x.n);
+  const keys = [!keyOk('plate') && 'the data plate', !keyOk('brand') && 'the brand logo'].filter(Boolean);
+  b.disabled = !!miss.length || !!keys.length;
+  b.textContent = miss.length ? `Add ${miss.length} more required photo${miss.length === 1 ? '' : 's'}` : keys.length ? `Add ${keys.join(' and ')}` : `Analyze ${n} photo${n === 1 ? '' : 's'}`;
+  why.textContent = miss.length ? `Still needed: ${miss.join(', ')}.` : keys.length ? `Snap ${keys.join(' and ')}, or tick ${[!keyOk('plate') && '"No plate on it"', !keyOk('brand') && '"No logo"'].filter(Boolean).join(' / ')} if the unit doesn't have one.` : n < MAX_SHOTS ? `Ready. You can add ${MAX_SHOTS - n} more (up to ${MAX_SHOTS}).` : `All ${MAX_SHOTS} photos in.`;
+}
+$('#shots').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.slot) { const f = Array.from(t.files || []).find(isImg); t.value = ''; if (f) { st.sample = false; setShot(t.dataset.slot, f); renderShots(); } }
+  if (t.dataset.skip) { if (t.checked) st.skip[t.dataset.skip] = true; else delete st.skip[t.dataset.skip]; renderShots(); }
+});
+$('#shots').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; e.preventDefault(); setShot(b.dataset.rm, null); renderShots(); });
+function resetShots() { SHOTS.forEach(x => setShot(x.k, null)); st.skip = {}; st.sample = false; renderShots(); }
+$('#analyzeBtn').addEventListener('click', () => {
+  if (reqDone() < MIN_REQ) { toast(`Add the ${MIN_REQ} required photos first`); return; }
+  if (!keyOk('plate') || !keyOk('brand')) { toast('Add the data plate and brand logo, or tick No plate / No logo'); return; }
+  st.files = AI_ORDER.filter(k => st.shots[k]).map(k => ({ file: st.shots[k], role: SHOTS.find(x => x.k === k).role }));
+  st.urls = SHOTS.filter(x => st.shots[x.k]).map(x => st.shotUrls[x.k]);
+  startAnalysis();
+});
+// Example photo (not the seller's item): one stock photo, clearly an example, so the 4-photo rule doesn't apply.
+async function runSample(file) { st.sample = true; st.files = [{ file, role: 'front' }]; st.urls = [URL.createObjectURL(file)]; startAnalysis(); }
+async function startAnalysis() {
   $('#thumbs').innerHTML = st.urls.map((u, i) => `<img src="${u}" alt="Photo ${i + 1}">`).join('');
   $('#scanImg').src = st.urls[0];
   st.priceDirty = st.titleDirty = st.descDirty = false; st.checked = null;
@@ -365,7 +425,7 @@ $('#mailBtn') && $('#mailBtn').addEventListener('click', () => {
   if (!requirePrice()) return;
   location.href = `mailto:justaskmiggy@gmail.com?subject=${encodeURIComponent('Speedy List: ' + ($('#titleIn').value || 'new listing'))}&body=${encodeURIComponent(listingText() + '\n\n(Attach your photos.)')}`;
 });
-$('#againBtn').addEventListener('click', () => { showStep('stepDrop'); $('#list').scrollIntoView({ behavior: 'smooth' }); });
+$('#againBtn').addEventListener('click', () => { resetShots(); showStep('stepDrop'); $('#list').scrollIntoView({ behavior: 'smooth' }); });
 
 /* ---------- onboarding sheet after first drop ---------- */
 function maybeOnboard() {
@@ -382,7 +442,7 @@ function maybeOnboard() {
 function hideSheet() { $('#sheet').hidden = true; }
 
 /* ---------- init ---------- */
-renderConnGrid(); renderMkGrid(); st.item = Object.assign({}, BLANK); renderPostChecks();
+renderConnGrid(); renderMkGrid(); st.item = Object.assign({}, BLANK); renderPostChecks(); renderShots();
 if (location.hash === '#connect-all') setTimeout(connectAll, 300);
-window.SpeedyList = { connectAll, handleFiles, reset() { localStorage.removeItem(CONN_KEY); localStorage.removeItem('sla.onboarded'); conns = {}; renderConnGrid(); renderPostChecks(); } };
+window.SpeedyList = { connectAll, addFiles, SHOTS, MIN_REQ, MAX_SHOTS, reset() { localStorage.removeItem(CONN_KEY); localStorage.removeItem('sla.onboarded'); conns = {}; renderConnGrid(); renderPostChecks(); } };
 })();

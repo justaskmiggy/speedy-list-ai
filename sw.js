@@ -1,5 +1,5 @@
 /* Speedy List AI service worker: precache app shell (works offline), cache-first for static, network-first for pages. */
-const VER = 'speedy-list-ai-v9';
+const VER = 'speedy-list-ai-v10';
 const SHELL = [
   './', 'index.html', 'privacy.html', 'manifest.webmanifest',
   'css/app.css', 'js/config.js', 'js/data.js', 'js/app.js',
