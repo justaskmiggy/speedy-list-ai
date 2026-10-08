@@ -1,8 +1,8 @@
 /* Speedy List AI service worker: precache app shell (works offline), cache-first for static, network-first for pages. */
-const VER = 'speedy-list-ai-v7';
+const VER = 'speedy-list-ai-v8';
 const SHELL = [
   './', 'index.html', 'privacy.html', 'manifest.webmanifest',
-  'css/app.css', 'js/data.js', 'js/app.js',
+  'css/app.css', 'js/config.js', 'js/data.js', 'js/app.js',
   'assets/brand/roadrunner-tile.png', 'assets/brand/roadrunner-tile-64.png', 'assets/brand/roadrunner-icon-192.png',
   'assets/brand/roadrunner-icon-512.png', 'assets/brand/roadrunner-maskable-512.png', 'assets/brand/roadrunner-apple-touch-180.png',
   'assets/brand/roadrunner-favicon-32.png',

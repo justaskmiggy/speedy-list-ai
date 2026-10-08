@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Speedy List AI",
   "short_name": "Speedy List",
-  "description": "One photo of your restaurant or commercial equipment becomes a priced listing on every marketplace. List it fast. Sell it faster. (Prototype: demo AI and demo posting.)",
+  "description": "One photo of your restaurant or commercial equipment becomes a priced listing on every marketplace. List it fast. Sell it faster.",
   "start_url": "./index.html?source=pwa",
   "scope": "./",
   "display": "standalone",
