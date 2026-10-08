@@ -401,3 +401,9 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
   .mk-more{display:flex!important}
 }
 .mk-more{display:none;justify-content:center;margin:-4px 0 16px}
+
+/* asking-price required */
+.money input.need{border-color:#f97316!important;box-shadow:0 0 0 3px rgba(249,115,22,.25)}
+.price-need{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.45);font-weight:700;font-size:14px;line-height:1.35}
+.price-need[hidden]{display:none}
+.calc.wrap{white-space:normal;overflow-x:visible;line-height:1.4}

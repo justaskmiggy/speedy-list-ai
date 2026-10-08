@@ -195,11 +195,14 @@ async function analyzeFiles(files) {
 }
 // Never let AI text carry prices or phone numbers into the description (price is set by the formula below).
 const cleanText = t => String(t || '').split(/(?<=[.!?])\s+/).filter(x => x && !/\$\s?\d|(\(\d{3}\)\s?|\b\d{3}[-.\s])\d{3}[-.\s]\d{4}\b/.test(x)).join(' ').trim();
+const rangeOf = r => { const lo = Math.round(+(r && r.low) || 0), hi = Math.round(+(r && r.high) || 0); return hi > 0 ? { low: Math.min(lo || hi, hi), high: Math.max(lo, hi) } : null; };
 function fromAI(j) {
   const name = (j.title || [j.make, j.model].filter(Boolean).join(' ') || 'Your equipment').slice(0, 120);
   const used = j.usedRange && j.usedRange.high ? Math.round(j.usedRange.high) : 0;
   return { ai: true, name, brand: j.make || '-', model: j.model || '-', cat: CAT_LABEL[j.category] || 'Equipment',
     retail: Math.round(+j.newPrice || 0) || (used ? used * 2 : 0),
+    // No new price? Fall back to the AI's resale range (valueRange, then usedRange) for a direct suggestion.
+    range: rangeOf(j.valueRange) || rangeOf(j.usedRange),
     specs: [j.size, j.power, j.included && 'Included: ' + j.included, j.conditionReason].filter(Boolean),
     desc: cleanText(String(j.description || '').replace(/\s*Buyer arranges pickup\.?\s*$/i, '')),
     review: Array.isArray(j.needsReview) ? j.needsReview.slice(0, 4) : [], confidence: j.confidence || 'low', cond: COND_ID[j.condition] || 'good' };
@@ -262,20 +265,29 @@ $('#condSeg').addEventListener('click', e => { const b = e.target.closest('butto
   $$('#condSeg button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b); }); reprice(); });
 $('#retailIn').addEventListener('input', e => { st.retail = Math.max(0, +e.target.value || 0); reprice(); });
 $('#bonusIn').addEventListener('input', e => { st.bonus = +e.target.value; reprice(); });
-$('#priceIn').addEventListener('input', e => { st.priceDirty = true; st.price = +e.target.value || 0; if (!st.titleDirty || !st.descDirty) writeListing(); });
+$('#priceIn').addEventListener('input', e => { st.priceDirty = true; st.price = Math.max(0, +e.target.value || 0); priceState(); if (!st.titleDirty || !st.descDirty) writeListing(); });
 $('#titleIn').addEventListener('input', e => { st.titleDirty = true; $('#titleCount').textContent = e.target.value.length + '/80'; });
 $('#descIn').addEventListener('input', () => { st.descDirty = true; });
 
 function reprice() {
   const c = SL.CONDITIONS.find(x => x.id === st.cond);
   const B = goldKey(st.item.brand) ? st.bonus : 0;
-  const V = st.retail * c.c + B;
+  const rg = st.item.range;
+  // R known: use the formula. No R but a resale range: suggest its midpoint. Neither: no suggestion (never $0).
+  const V = st.retail > 0 ? st.retail * c.c + B : rg ? (rg.low + rg.high) / 2 : 0;
   $('#bonusOut').textContent = money(B);
-  $('#calc').innerHTML = `V = (<b>${money(st.retail)}</b> &times; <b>${c.c.toFixed(2)}</b>) + <b>${money(B)}</b> = <b>${money(V)}</b>`;
-  $('#vOut').textContent = money(V);
-  if (!st.priceDirty) { st.price = Math.round(V / 5) * 5; $('#priceIn').value = st.price; }
+  $('#calc').innerHTML = st.retail > 0 ? `V = (<b>${money(st.retail)}</b> &times; <b>${c.c.toFixed(2)}</b>) + <b>${money(B)}</b> = <b>${money(V)}</b>`
+    : rg ? `No new price found, so this is Speedy AI's used-value estimate: <b>${money(rg.low)}${rg.high !== rg.low ? ' - ' + money(rg.high) : ''}</b>. Add the new retail price above to use the formula.`
+    : `No price found from the photos. Type the new retail price above, or enter your asking price below.`;
+  $('#calc').classList.toggle('wrap', !(st.retail > 0));
+  $('#vOut').textContent = V > 0 ? money(V) : '-';
+  if (!st.priceDirty) { st.price = V > 0 ? Math.round(V / 5) * 5 : 0; $('#priceIn').value = st.price || ''; }
+  priceState();
   writeListing();
 }
+// Seller must have a real asking price before anything is copied or prepared.
+function priceState() { const need = !(st.price > 0); $('#priceIn').classList.toggle('need', need); $('#priceNeed').hidden = !need; return !need; }
+function requirePrice() { if (priceState()) return true; toast('Enter your asking price first'); $('#priceIn').focus(); $('#priceIn').scrollIntoView({ behavior: 'smooth', block: 'center' }); return false; }
 function writeListing() {
   const it = st.item, c = SL.CONDITIONS.find(x => x.id === st.cond);
   if (!st.titleDirty) {
@@ -283,7 +295,7 @@ function writeListing() {
     $('#titleIn').value = t; $('#titleCount').textContent = t.length + '/80';
   }
   if (!st.descDirty) {
-    $('#descIn').value = !it.ai ? '' : `${it.name}\n\n${it.desc ? it.desc + '\n\n' : ''}Condition: ${c.label} - ${c.hint.toLowerCase()}.\nBrand: ${it.brand}  |  Model: ${it.model}  |  Category: ${it.cat}\n${it.specs.length ? '\nDetails:\n' + it.specs.map(s => '- ' + s).join('\n') + '\n' : ''}\nPrice: ${money(st.price)}${st.retail ? ` (new runs about ${money(st.retail)})` : ''}.\nLocal pickup, or freight at buyer's expense. Message with questions or to schedule a look.\n\nListed with Speedy List AI`;
+    $('#descIn').value = !it.ai ? '' : `${it.name}\n\n${it.desc ? it.desc + '\n\n' : ''}Condition: ${c.label} - ${c.hint.toLowerCase()}.\nBrand: ${it.brand}  |  Model: ${it.model}  |  Category: ${it.cat}\n${it.specs.length ? '\nDetails:\n' + it.specs.map(s => '- ' + s).join('\n') + '\n' : ''}${st.price > 0 ? `\nPrice: ${money(st.price)}${st.retail ? ` (new runs about ${money(st.retail)})` : ''}.\n` : '\n'}Local pickup, or freight at buyer's expense. Message with questions or to schedule a look.\n\nListed with Speedy List AI`;
   }
 }
 
@@ -318,6 +330,7 @@ function listingText() { return `${$('#titleIn').value}\n${money(+$('#priceIn').
 $('#postBtn').addEventListener('click', async () => {
   const ids = checkedIds(); if (!ids.length) return;
   if (!$('#titleIn').value.trim()) { toast('Add a title first'); $('#titleIn').focus(); return; }
+  if (!requirePrice()) return;
   const b = $('#postBtn'); b.dataset.busy = '1'; b.disabled = true; b.lastChild.textContent = ' Preparing...';
   const ol = $('#postProgress'); ol.hidden = false;
   ol.innerHTML = ids.map(id => { const m = byId(id); return `<li data-id="${id}">${mono(m)}<span class="nm">${esc(m.name)}</span><span class="bar"><i></i></span><span class="st">Queued</span></li>`; }).join('');
@@ -335,6 +348,7 @@ $('#postBtn').addEventListener('click', async () => {
 async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch (er) { const x = $('#copyBox'); if (x) { x.select(); document.execCommand('copy'); return true; } return false; } }
 $('#postProgress').addEventListener('click', async e => {
   const btn = e.target.closest('[data-finish]'); if (!btn) return;
+  if (!requirePrice()) return;
   const li = btn.closest('li'), m = byId(li.dataset.id), s = li.querySelector('.st');
   const text = listingText();
   copyText(text).then(ok => ok && toast('Listing copied'));
@@ -348,6 +362,7 @@ $('#postProgress').addEventListener('click', async e => {
   if (await p) { s.className = 'st ok'; s.innerHTML = `<span class="check">${ICON_CHECK}</span>Published`; }
 });
 $('#mailBtn') && $('#mailBtn').addEventListener('click', () => {
+  if (!requirePrice()) return;
   location.href = `mailto:justaskmiggy@gmail.com?subject=${encodeURIComponent('Speedy List: ' + ($('#titleIn').value || 'new listing'))}&body=${encodeURIComponent(listingText() + '\n\n(Attach your photos.)')}`;
 });
 $('#againBtn').addEventListener('click', () => { showStep('stepDrop'); $('#list').scrollIntoView({ behavior: 'smooth' }); });

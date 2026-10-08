@@ -146,8 +146,9 @@
                 <div class="calc" id="calc"></div>
                 <div class="final">
                   <div><span class="tiny">Suggested list price</span><div class="big" id="vOut">$0</div></div>
-                  <div class="field inline"><label for="priceIn">Your price</label><div class="money"><span>$</span><input id="priceIn" type="number" inputmode="numeric" min="0" step="5"></div></div>
+                  <div class="field inline"><label for="priceIn">Your price</label><div class="money"><span>$</span><input id="priceIn" type="number" inputmode="numeric" min="0" step="5" placeholder="Enter price" aria-describedby="priceNeed"></div></div>
                 </div>
+                <p class="price-need" id="priceNeed" role="status" hidden>Enter your asking price. Speedy AI couldn't price this one from the photos, and your listing can't be copied until it has a price.</p>
               </div>
             </div>
 
