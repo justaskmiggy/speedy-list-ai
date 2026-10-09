@@ -1,5 +1,5 @@
 /* Speedy List AI service worker: precache app shell (works offline), cache-first for static, network-first for pages. */
-const VER = 'speedy-list-ai-v10';
+const VER = 'speedy-list-ai-v11';
 const SHELL = [
   './', 'index.html', 'privacy.html', 'manifest.webmanifest',
   'css/app.css', 'js/config.js', 'js/data.js', 'js/app.js',
@@ -14,7 +14,7 @@ self.addEventListener('install', e => {
   e.waitUntil(caches.open(VER).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VER).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('speedy-list-ai-') && k !== VER).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', e => {
   const req = e.request; const url = new URL(req.url);
