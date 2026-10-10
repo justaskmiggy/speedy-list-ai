@@ -101,15 +101,6 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .hero-stats b{color:var(--text);font:800 16px var(--head);margin-right:3px}
 .tile-ring{position:absolute;inset:6%;border-radius:22%;filter:drop-shadow(0 24px 50px rgba(255,90,31,.35));animation:bob 6s ease-in-out infinite}
 .tile-ring img{width:100%;height:100%}
-.float{position:absolute;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line2);border-radius:14px;padding:8px 12px;font:700 13px var(--head);box-shadow:var(--shadow);display:flex;align-items:center;gap:7px;white-space:nowrap}
-.float small{display:block;font:600 11px var(--body);color:var(--mute)}
-.float b{font-size:20px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.float.f3{flex-direction:column;align-items:flex-start;gap:0}
-.f1{left:-6%;top:12%;animation:bob 5s ease-in-out infinite .4s}
-.f2{right:-8%;top:44%;animation:bob 5.5s ease-in-out infinite 1s}
-.f3{left:2%;bottom:2%;animation:bob 6.5s ease-in-out infinite .2s}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--o2);display:inline-block}
-.dot.ok{background:var(--green);box-shadow:0 0 0 3px rgba(47,210,122,.18)}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media(min-width:900px){
   .hero{padding:60px 0 70px}
